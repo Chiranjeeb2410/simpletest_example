@@ -1,0 +1,34 @@
+<?php
+
+/**
+    * Tests editing a Simpletest example node.
+    */
+  public function testSimpleTestExampleEdit() {
+    $settings = array(
+      'type' => 'simpletest_example',
+      'title' => $this->randomName(32),
+      'body' => array(LANGUAGE_NONE => array(array($this->randomName(64)))),
+    );
+    $node = $this->drupalCreateNode($settings);
+
+    // For debugging, we might output the node structure with $this->verbose()
+    $this->verbose('Node created: ' . var_export($node, TRUE));
+    // It would only be output if the testing settings had 'verbose' set.
+
+    // We'll run this test normally, but not on the testbot, as it would
+    // indicate that the examples module was failing tests.
+    if (!$this->runningOnTestbot()) {
+      // The debug() statement will output information into the test results.
+      // It can also be used in Drupal 7 anywhere in code and will come out
+      // as a drupal_set_message().
+      debug('We are not running on the PIFR testing server, so will go ahead and catch the failure.');
+      $this->drupalGet("node/{$node->nid}/edit");
+      // Make sure we don't get a 401 unauthorized response:
+      $this->assertResponse(200, 'User is allowed to edit the content.');
+
+      // Looking for title text in the page to determine whether we were
+      // successful opening edit form. Note that the output message
+      //  "Found title in edit form" is not translated with t().
+      $this->assertText(t("@title", array('@title' => $settings['title'])), "Found title in edit form");
+    }
+  }

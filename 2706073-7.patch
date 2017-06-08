@@ -1,0 +1,11 @@
+diff --git a/simpletest_example.info b/simpletest_example.info
+index b7d2fb3..ab31f21 100644
+--- a/simpletest_example.info
++++ b/simpletest_example.info
+@@ -4,3 +4,5 @@ package = Example modules
+ core = 7.x
+ dependencies[] = simpletest
+ files[] = simpletest_example.test
++files[] = simpletest_example1.test
++testing_api = 2.x
+\ No newline at end of file

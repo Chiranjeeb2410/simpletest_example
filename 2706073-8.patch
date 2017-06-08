@@ -1,0 +1,23 @@
+diff --git a/simpletest_example2.test b/simpletest_example2.test
+index 211d316..7e63e43 100644
+--- a/simpletest_example2.test
++++ b/simpletest_example2.test
+@@ -41,6 +41,18 @@ class SimpletestExampleTestCase extends DrupalWebTestCase {
+     $this->drupalPost('node/add/simpletest-example', $edit, t('Save'));
+     $this->assertText(t('Simpletest Example Node Type @title has been created.', array('@title' => $edit['title'])));
+   }
++  
++    /**
++    * Tests creation of a Simpletest example node.
++    */
++  public function testSimpleTestExampleCreate() {
++    // Create node to edit.    
++    $edit = array();
++    $edit['title'] = $this->randomName(8);
++    $edit["body[und][0][value]"] = $this->randomName(16);
++    $this->drupalPost('node/add/simpletest-example', $edit, t('Save'));
++    $this->assertText(t('Simpletest Example Node Type @title has been created.', array('@title' => $edit['title'])));
++  }
+ 
+ 
+ 
