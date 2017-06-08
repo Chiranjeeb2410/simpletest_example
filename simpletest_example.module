@@ -1,0 +1,133 @@
+<?php
+
+/**
+ * @file
+ * Module file for simpletest_example
+ */
+
+/**
+ * @defgroup simpletest_example Example: Simpletest
+ * @ingroup examples
+ * @{
+ * 一个针对 http://drupal.org/node/890654 教程的simpletest测试的例子。
+ *
+ * 这个模块创建一个新的node type，名为'SimpleTest Example Node Type'，我们的测试将围
+ * 绕这一内容类型进行。
+ */
+
+/**
+ * Implements hook_node_info().
+ */
+function simpletest_example_node_info() {
+  return array(
+    'simpletest_example' => array(
+      'name' => t('SimpleTest Example Node Type'),
+      'base' => 'simpletest_example',
+      'description' => t('simpletest_example page node type.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_permission().
+ *
+ * 在这个例子中，我们添加了一个附加的权限，跟Node模块提供的权限类似，仅是为了演示使用。
+ */
+function simpletest_example_permission() {
+  $perms = array();
+  $perms['extra special edit any simpletest_example'] = array('title' => t('Extra special edit any SimpleTest Example'), 'description' => t('Extra special edit any SimpleTest Example'));
+  return $perms;
+}
+
+/**
+ * Implements hook_node_access().
+ *
+ * 在这里演示一个BUG，我们将在测试中找到这一BUG。
+ *
+ * If this is running on the testbot, we don't want the error to show so will
+ * work around it by testing to see if we're in the 'checkout' directory.
+ *
+ *
+ */
+function simpletest_example_node_access($node, $op, $account) {
+  // 如果不是simple test example类型的node，就不要继续进行。
+
+  $type = is_string($node) ? $node : $node->type;
+  if ($type != 'simpletest_example' || ($op != 'update' && $op != 'delete')) {
+    return NODE_ACCESS_IGNORE;
+  }
+
+  // 这段代码包含一个即将被我们的测试发现的BUG。
+  // 我们将会用一个错误的版本，来演示测试失败的情况。
+  // 正确的版本应该是 ($op == 'update' || $op == 'delete')。
+  //
+  // 出现这个错误的原因是作者一直用1号用户进行测试，所以他一直能通过访问检测而不会出错。
+
+  if (($op == 'delete')  && (user_access('extra special edit any simpletest_example', $account) && ($account->uid == $node->uid))) {
+    return NODE_ACCESS_ALLOW;
+  }
+
+  return NODE_ACCESS_DENY;
+}
+
+/**
+ * Implements hook_form().
+ *
+ * 这一Node Type对应的Form
+ */
+function simpletest_example_form($node, $form_state) {
+  $type = node_type_get_type($node);
+  $form = array();
+  if ($type->has_title) {
+    $form['title'] = array(
+      '#type' => 'textfield',
+      '#title' => check_plain($type->title_label),
+      '#required' => TRUE,
+      '#default_value' => $node->title,
+      '#maxlength' => 255,
+      '#weight' => -5,
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_menu().
+ *
+ * 提供一个说明。
+ */
+function simpletest_example_menu() {
+  $items['examples/simpletest_example'] = array(
+    'title'           => 'Simpletest Example',
+    'description'     => 'Explain the simpletest example and allow the error logic to be executed.',
+    'page callback'   => '_simpletest_example_explanation',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+/**
+ * 返回关于这个模块的说明。
+ */
+function _simpletest_example_explanation() {
+
+  $explanation = t("This Simpletest Example is designed to give an introductory tutorial to writing
+    a simpletest test. Please see the <a href='http://drupal.org/node/890654'>associated tutorial</a>.");
+  return $explanation;
+}
+
+/**
+ * 一个独立的函数用于演示单元测试。
+ *
+ * @see SimpletestUnitTestExampleTestCase
+ */
+function simpletest_example_empty_mysql_date($date_string) {
+  if (empty($date_string) || $date_string == '0000-00-00' || $date_string == '0000-00-00 00:00:00') {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * @} End of "defgroup simpletest_example".
+ */
